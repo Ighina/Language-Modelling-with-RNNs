@@ -17,53 +17,53 @@ To download the required libraries, either pip can be used directly to install t
 In both cases, open your command prompt (anaconda prompt is preferred) and do one of the following.
 
 Installing required libraries with pip:
-'''
+```
 pip -install -r requirements.txt
-'''
+```
 
 Creating a virtual-environment where to install required libraries with conda:
-'''
+```
 conda create -n rnn --file ./requirements.txt -c pytorch
-'''
+```
 
 After which the environment can be activated with:
-'''
+```
 conda activate rnn
-'''
+```
 And deactivated with:
-'''
+```
 conda deactivate rnn
-'''
+```
 
 ## Setting up a workspace directory
 
 Currently, the program works by gathering from and saving the data to user-defined folders having a pre-defined structure.
 To create a new project, you will need to create such a new folder with a name of your choice and to do so, the Prepare_workspace.py program can be run, specifying the new folder name:
-'''
+```
 python Prepare_workspace.py -name <your_folder_name>
-'''
+```
 
 At this point a folder with the specified name should be created. You can copy your data to the data sub-directory in the newly created folder, as well as change the parameters of Hyperparameters.json inside the folder as required. Such a file is copied from the working directory (previously set to be this repository in the location you downloaded it on your pc) and defines the specific parameters for each separate experiment.
 
 ## Training a model
 
 To train a model, the Hyperparameters.json file that has been copied into the newly created data folder is parsed by the run.py program, that in turn calls the Train.py program. The Hyperparameters.json inside the newly created folder specifies a number of options, such as number of hidden units/embeddings dimensions, whether to use a conditional language model and, in case, if to use writer codes or initialise the hidden layer (see above) and, crucially, wheter to model characters or entire words, how tokenization is done (by line or by logical sentence) and the source data format. To see all the available options and their use, the first lines of Train.py can be consulted (the ones defining the parser arguments) either by opening the file itself or by running the following command:
-'''
+```
 python Train.py -h
-'''
+```
 Be careful to use exactly the same formatting when changing the Hyperparameters.json file (e.g. write "TRUE" for including an option and "FALSE" to exclude it).
 Once the Hyperparameters.json has been modified as appropriate (remember to check that the '--save_model' option is set to "TRUE" in order to store the trained model), run the following command to train the model:
-'''
+```
 python run.py --experiment_folder <your_folder_name>
-'''
+```
 According to the model size and if a GPU is used or not, the model could take many hours to train. By keeping the terminal open, the training process should go on until the number of desired epochs is reached or no improvement was observed.
 
 ## Generate from the trained model
 
 Once the model is trained (and if the "--save_model" option was set to "TRUE"), it can be used to generate sample sentences as follow:
-'''
+```
 python generate.py --experiment_folder <your_folder_name>
-'''
+```
 Whereas additional options include:
 -sample (default 3): the number of samples to generate.
 -size (default 10): the maximum size of each sample (in words if the model was trained on words or in characters otherwise).
@@ -71,9 +71,9 @@ Whereas additional options include:
 -save (default False): a boolean. If included, the output is saved to "output.txt" in the outputs sub-directory.
 
 An example use could be as following:
-'''
+```
 python generate.py -sample 2 -size 20 -cont -save
-'''
+```
 
 ## Generate from pre-trained model
 
