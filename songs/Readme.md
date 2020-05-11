@@ -9,4 +9,4 @@ To generate from this model, run the following code from the main directory of t
 ```
 python generate.py --experiment_folder songs
 ```
-Arguments can be added as described [before](../)
+Arguments can be added as described [before](https://github.com/Ighina/Language-Modelling-with-RNNs#generate-from-the-trained-model)
