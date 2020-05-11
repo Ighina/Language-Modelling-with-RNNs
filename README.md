@@ -23,7 +23,9 @@ pip -install -r requirements.txt
 
 Creating a virtual-environment where to install required libraries with conda:
 ```
-conda create -n rnn --file ./requirements.txt -c pytorch
+conda create -n rnn
+conda install pytorch torchvision -c pytorch
+pip install -r requirements.txt
 ```
 
 After which the environment can be activated with:
