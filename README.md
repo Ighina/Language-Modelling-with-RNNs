@@ -65,10 +65,10 @@ Once the model is trained (and if the "--save_model" option was set to "TRUE"), 
 python generate.py --experiment_folder <your_folder_name>
 ```
 Whereas additional options include:
--sample (default 3): the number of samples to generate.
--size (default 10): the maximum size of each sample (in words if the model was trained on words or in characters otherwise).
--cont (default False): a boolean. If included, the generation process won't stop when an end of sentence is encountered but it keeps generating until the maximum size is reached.
--save (default False): a boolean. If included, the output is saved to "output.txt" in the outputs sub-directory.
+- -sample (default 3): the number of samples to generate.
+- -size (default 10): the maximum size of each sample (in words if the model was trained on words or in characters otherwise).
+- -cont (default False): a boolean. If included, the generation process won't stop when an end of sentence is encountered but it keeps generating until the maximum size is reached.
+- -save (default False): a boolean. If included, the output is saved to "output.txt" in the outputs sub-directory.
 
 An example use could be as following:
 ```
