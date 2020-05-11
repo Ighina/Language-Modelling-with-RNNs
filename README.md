@@ -74,7 +74,7 @@ Whereas additional options include:
 
 An example use could be as following:
 ```
-python generate.py -sample 2 -size 20 -cont -save
+python generate.py --experiment_folder <your_folder_name> -sample 2 -size 20 -cont -save
 ```
 
 ## Generate from pre-trained model
