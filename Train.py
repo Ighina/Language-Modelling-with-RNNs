@@ -22,10 +22,15 @@ import torch.nn.functional as F
 from RNN import *
 from Preprocess_function import *
 import argparse
+import sys
 
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(2)
 
-
-parser = argparse.ArgumentParser(
+parser = MyParser(
         description = 'Toolkit for natural language processing with gated recurrent neural networks')
 
 parser.add_argument('--experiment_folder', '-folder', default='experiment', type=str,
@@ -252,6 +257,7 @@ elif char:
             assert os.path.splitext(file)[1][1:]=='csv', 'You specified csv file(s) as input, but files with different extentions are present in the data directory: please change extension/move non-csv files'
     voc_2_index, word_counts, all_lines_gr, index_2_voc, writer =\
     Preprocessor.preprocess_files(by_character=True,
+                                  by_stanzas=tok_verse,
                                   remove_hapaxes=remove_hp,
                                   remove_threshold=threshold_remove,
                                   include_writers=include_writers,
@@ -263,7 +269,7 @@ elif char:
             writer_tensor = torch.tensor([writer[line[1]] for i in range(len(line[0])+1)], dtype=torch.long)
             training_data.append((sentence_to_train(line[0], voc_2_index, by_character=True),sentence_to_target(line[0], voc_2_index, by_character=True),writer_tensor))
     else:
-        training_data = [(sentence_to_train(line[0], voc_2_index, by_character=True),sentence_to_target(line[0], voc_2_index, by_character=0),sentence_to_target(line[0],voc_2_index)) for line in all_lines_gr.values()]
+        training_data = [(sentence_to_train(line[0], voc_2_index, by_character=True),sentence_to_target(line[0], voc_2_index, by_character=True),sentence_to_target(line[0],voc_2_index)) for line in all_lines_gr.values()]
 else:
     Preprocessor = Preprocess(data=data_dir)
     voc_2_index, word_counts, all_lines_gr, index_2_voc, writer =\
@@ -310,11 +316,29 @@ model_new = RNN(EMBEDDING_DIM, HIDDEN_DIM, len(voc_2_index), NUM_LAYERS,
 criterion = nn.CrossEntropyLoss(ignore_index=0, reduction='sum')
 optimizer2 = torch.optim.Adam(model_new.parameters(), lr=learn)
 
+validation_data = []
+for index, sample in enumerate(training_data):
+    if index%valid_perc==0:
+        if validation_file:
+            pass
+        elif use_validation:
+            validation_data.append(training_data.pop(index))
+            continue
+        else:
+            pass
+
 training_2_batch = LMDataset(training_data, voc_2_index)
 dataset = torch.utils.data.DataLoader(dataset=training_2_batch,
                                       batch_size = BATCH_SIZE,
                                       collate_fn = training_2_batch.collater,
                                       shuffle=shuffle)
+
+validation_2_batch = LMDataset(validation_data, voc_2_index)
+validation = torch.utils.data.DataLoader(dataset=validation_2_batch,
+                                      batch_size = BATCH_SIZE,
+                                      collate_fn = validation_2_batch.collater,
+                                      shuffle=shuffle)
+
 if args.use_gpu:
     dataset = DeviceDataLoader(dataset, device)
 
@@ -338,20 +362,11 @@ for epoch in range(epochs):
     stats['grad_norm'] = 0
     stats['clip'] = 0
     progress_bar = tqdm(dataset, desc='| Epoch {:03d}'.format(epoch), leave=False, disable=not(log_stats))
-    validation = []
     train_count = 0
 
         # Iterate over the training set
     for counter, sentence in enumerate(progress_bar):
         
-        if counter%valid_perc==0:
-            if validation_file:
-                pass
-            elif use_validation:
-                validation.append(sentence)
-                continue
-            else:
-                pass
         
         train_count+=1
 

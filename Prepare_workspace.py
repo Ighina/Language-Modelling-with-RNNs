@@ -8,8 +8,15 @@ Created on Wed May  6 15:41:20 2020
 import os
 import argparse
 import shutil
+import sys
 
-parser = argparse.ArgumentParser(
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(2)
+
+parser = MyParser(
         description='Workspace generator function: the program will create\
         a directory with a user-specified name in which a set of predefined sub-directories\
         will contain the training data, generated sentences, saved model, saved vocabularies\

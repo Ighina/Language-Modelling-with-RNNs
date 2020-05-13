@@ -15,8 +15,15 @@ import torch
 from RNN import RNN
 import torch.nn.functional as F
 import argparse
+import sys
 
-parser = argparse.ArgumentParser(
+class MyParser(argparse.ArgumentParser):
+    def error(self, message):
+        sys.stderr.write('error: %s\n' % message)
+        self.print_help()
+        sys.exit(2)
+
+parser = MyParser(
         description = 'Run training with hyperparameters defined in the relative json file')
 
 parser.add_argument('--experiment_folder', '-folder', default='experiment', type=str,
@@ -77,7 +84,7 @@ def load_dictionaries(path):
         writer = pickle.load(f)
     return voc_2_index, index_2_voc, writer
 
-def load_model(path, hyper, inference=True, dictionary_path=args.dictionary_path):
+def load_model(path, hyper, inference=True, dictionary_path=args.dictionary_path, LSTM=False):
     assert os.path.exists(path), 'directory for model {} could not be found'.format(path)
     voc_2_index, _ , writer = load_dictionaries(dictionary_path)
     model = RNN(hyper['--embed_size'], hyper['--hidden_size'], len(voc_2_index), hyper['--num_layers'], 
@@ -85,7 +92,7 @@ def load_model(path, hyper, inference=True, dictionary_path=args.dictionary_path
                     writer_number=len(writer), 
                     writer_embed_size=hyper['--writers_embeddings'], 
                     add_writer_as_hidden=hyper['--initialise_hidden'], 
-                    LSTM=False)
+                    LSTM=LSTM)
 #    lod = torch.load(os.path.join(path,'model.pt'))
     model.load_state_dict(torch.load(os.path.join(path,'model.pt')))
     if inference:
@@ -157,6 +164,7 @@ def conditional_sample_from_model(model, voc_2_index, writers, sample_size=20,
     writer_indices = torch.tensor(writers, dtype=torch.int64).unsqueeze(dim=0)
     if init_hidden:
         h_t = model.init_embedding(writer_indices)
+        h_t = h_t.repeat(model.num_layers,1,1).view(-1,*h_t.shape[1:])
     else:
         h_t = None
     for time_step in range(sample_size):
@@ -211,7 +219,7 @@ def decode_samples(sampled_indices, voc_2_index, index_2_voc,by_character=False,
 def main():
     voc_2_index, index_2_voc, writer = load_dictionaries(args.dictionary_path)
     hyper = get_model_parameters(args.hyper_file)
-    model = load_model(args.model_path, hyper=hyper)
+    model = load_model(args.model_path, hyper=hyper, LSTM=hyper['--LSTM'])
     output = []
     try:
         if hyper['--conditional_model']:

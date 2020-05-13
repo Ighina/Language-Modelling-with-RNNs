@@ -292,7 +292,7 @@ class Preprocess():
                             word_counts[token]+=1
         else:
             for file in files:
-                temp = open(file).read()
+                temp = open(file, encoding='utf-8').read()
                 if preserve_new_line:
                     temp = self.RemoveChapters(temp)
                 else:
@@ -301,7 +301,7 @@ class Preprocess():
                 for line in sentences:
                     if by_character:
                         if include_writers:
-                            all_lines_gr[line_count] = ['<s>'+line.lstrip().rstrip()+'<\s>',re.findall("([^0-9]*)[0-9]*\.",file)[0]]
+                            all_lines_gr[line_count] = [line.lstrip().rstrip(),re.findall("([^0-9]*)[0-9]*\.",file)[0]]
                         else:
                             all_lines_gr[line_count] = ['<s>'+line.lstrip().rstrip()+'<\s>']
                     else:
