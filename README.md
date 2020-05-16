@@ -18,7 +18,7 @@ In both cases, open your command prompt (anaconda prompt is preferred) and do on
 
 Installing required libraries with pip:
 ```
-pip -install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 Creating a virtual-environment where to install required libraries with conda:
